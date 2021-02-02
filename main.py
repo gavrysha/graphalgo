@@ -30,24 +30,21 @@ class Graph:
         del self.__cells[index]
         del self.__rel_list[index]
         for cell_rels in self.__rel_list:
-            for ind in cell_rels:
-                if ind==index:
-                    del ind
-                elif ind>index:
-                    ind=ind-1
+            if  cell in cell_rels:
+                cell_rels.remove(cell)
 
     def add_relation(self, cell_index1:int, cell_index2:int):
         if self.__cell_exists(cell_index1) and self.__cell_exists(cell_index2):
-            self.__rel_list[cell_index1].append(cell_index2)
+            self.__rel_list[cell_index1].append(self.__cells[cell_index2])
 
     def delete_relation(self, cell_index1:int, cell_index2:int):
         removed = False
         if self.__cell_exists(cell_index1) and self.__cell_exists(cell_index2):
-            if cell_index2 in self.__rel_list[cell_index1]:
-                self.__rel_list[cell_index1].remove(cell_index2)
+            if self.__cells[cell_index2] in self.__rel_list[cell_index1]:
+                self.__rel_list[cell_index1].remove(self.__cells[cell_index2])
                 removed = True
-            if cell_index1 in self.__rel_list[cell_index2]:
-                self.__rel_list[cell_index2].remove(cell_index1)
+            if self.__cells[cell_index1] in self.__rel_list[cell_index2]:
+                self.__rel_list[cell_index2].remove(self.__cells[cell_index1])
                 removed = True
         return removed
 
@@ -171,14 +168,14 @@ class GraphBuilder:
             graph_rel_list = self.__graph.get_rel_list()
             print('aa', graph_rel_list)
             for cell_index1 in range(len(graph_rel_list)):
-                for cell_index2 in graph_rel_list[cell_index1]:
+                for cell in graph_rel_list[cell_index1]:
                     pygame.draw.line(self.__display,
                         (13, 23, 26),
                         (graph_cells[cell_index1].pos_x,
                             graph_cells[cell_index1].pos_y
                         ),
-                        (graph_cells[cell_index2].pos_x,
-                            graph_cells[cell_index2].pos_y
+                        (cell.pos_x,
+                            cell.pos_y
                         ),
                         5
                     )
