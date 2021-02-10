@@ -1,4 +1,7 @@
 import pygame
+import tkinter.filedialog
+import tkinter
+
 from .graph import Graph
 
 
@@ -15,6 +18,9 @@ class GraphBuilder:
         return False
 
     def start_loop(self):
+        root = tkinter.Tk()
+        root.withdraw()
+
         running = True
         drag_vertex = False
 
@@ -77,6 +83,20 @@ class GraphBuilder:
                             new_vertex = self.graph.add_vertex(*mouse_pos)
                     elif event.key == pygame.key.key_code('e'):
                         new_edge_start = active_vertex
+                    elif event.key == pygame.key.key_code('o'):
+                        file_to_read = tkinter.filedialog.askopenfile('rb')
+                        if not file_to_read is None:
+                            self.graph = Graph.decode(file_to_read.read())
+                            file_to_read.close()
+                    elif event.key == pygame.key.key_code('s'):
+                        filetypes = (('Graphbuilder file', '*.gbldr'), )
+                        file_to_write = tkinter.filedialog.asksaveasfile(
+                            'wb',
+                            defaultextension='gbldr',
+                            filetypes=filetypes)
+                        if not file_to_write is None:
+                            file_to_write.write(self.graph.encode())
+                            file_to_write.close()
                     elif event.key == pygame.key.key_code('delete'):
                         if not active_vertex is None:
                             self.graph.remove_vertex(active_vertex)

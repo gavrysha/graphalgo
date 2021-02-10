@@ -1,3 +1,5 @@
+import json
+
 class GraphVertex:
     def __init__(self, pos_x, pos_y):
         self.pos_x = pos_x
@@ -39,4 +41,42 @@ class Graph:
             self.vertexes.remove(vertex)
         else:
             raise ValueError
+
+    def encode(self):
+        vertexes_for_encode = {}
+
+        for vertex in self.vertexes:
+            vertexes_for_encode[hash(vertex)] = {
+                'related': [str(hash(edge_from)) for edge_from in vertex.edges_from],
+                'x': vertex.pos_x,
+                'y': vertex.pos_y
+            }
+            
+        return json.dumps(vertexes_for_encode).encode()
+
+    @staticmethod
+    def decode(binary):
+        try:
+            vertexes_to_decode = json.loads(binary)
+
+            vertexes_dict = {}
+            for vertex_hash in vertexes_to_decode.keys():
+                vertexes_dict[vertex_hash] = GraphVertex(
+                    vertexes_to_decode[vertex_hash]['x'],
+                    vertexes_to_decode[vertex_hash]['y']
+                )
+            
+            for vertex_hash in vertexes_to_decode.keys():
+                for related_vertex_hash in vertexes_to_decode[vertex_hash]['related']:
+                    vertexes_dict[vertex_hash].add_edge(vertexes_dict[related_vertex_hash])
+
+            graph = Graph()
+            graph.vertexes = [vertex for vertex_hash, vertex in vertexes_dict.items()]
+
+            return graph
+
+        except Exception as exp:
+            print(exp)
+            return None
+
 
