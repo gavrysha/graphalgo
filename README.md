@@ -23,3 +23,21 @@ From parent directory:
 ```
 python graphbuilder
 ```
+
+### Controls
+
+`V` - create vertex.
+
+`E` - create edge. Before edge creating, you should activate vertex. Then click to second vertex.
+
+`Click to vertex` - activate vertex.
+
+`Esc` - cancel vertex and edge creating, deactivate vertex.
+
+`Delete` - delete active vertex.
+
+To delete edge create it one more time.
+
+`O` - open file.
+
+`S` - save to file.
