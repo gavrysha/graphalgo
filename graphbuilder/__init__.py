@@ -17,6 +17,24 @@ class GraphBuilder:
                 return True
         return False
 
+    def dfs(self, start, parent, answer):
+        start.used = True
+        if start.time_in != 1:
+            start.time_in = parent.time_in + 1
+        for i in start.edges:
+            if i.used != True:
+                self.dfs(i, start, answer)
+        j = 1
+        for _ in self.graph.vertexes:
+            if _ == start:
+                answer.append(j)
+            j += 1
+        for i in start.edges:
+            if i != parent:
+                start.time_out = min(start.time_in, start.time_out, i.time_out, i.time_in)
+        if start.time_out == 1e10:
+           start.time_out = start.time_in
+
     def start_loop(self):
         root = tkinter.Tk()
         root.withdraw()
@@ -62,6 +80,7 @@ class GraphBuilder:
                     if not new_edge_start is None and not clicked_vertex is None:
                         if new_edge_start.edge_exists(clicked_vertex):
                             new_edge_start.remove_edge(clicked_vertex)
+                            clicked_vertex.remove_edge(new_edge_start)
                         else:
                             new_edge_start.add_edge(clicked_vertex)
                         new_edge_start = None
@@ -88,6 +107,17 @@ class GraphBuilder:
                         if not file_to_read is None:
                             self.graph = Graph.decode(file_to_read.read())
                             file_to_read.close()
+                    elif event.key == pygame.key.key_code('w'):
+                        answer = []
+                        if not active_vertex is None:
+                            active_vertex.time_in = 1
+                            active_vertex.time_out = 1
+                            self.dfs(active_vertex, active_vertex, answer)
+                        # print(answer)
+                        _ = 1
+                        for i in self.graph.vertexes:
+                            print(_, i.time_in, i.time_out)
+                            _ += 1
                     elif event.key == pygame.key.key_code('s'):
                         filetypes = (('Graphbuilder file', '*.gbldr'), )
                         file_to_write = tkinter.filedialog.asksaveasfile(
@@ -114,10 +144,10 @@ class GraphBuilder:
                 new_vertex.pos_x = mouse_pos[0]
                 new_vertex.pos_y = mouse_pos[1]
 
-            self.display.fill((255, 255, 255))
+            self.display.fill((225, 225, 225))
 
             for vertex1 in self.graph.vertexes:
-                for vertex2 in vertex1.edges_from:
+                for vertex2 in vertex1.edges:
                     pygame.draw.line(self.display,
                                      (13, 23, 26),
                                      (
@@ -128,7 +158,7 @@ class GraphBuilder:
                                          vertex2.pos_x,
                                          vertex2.pos_y
                                      ),
-                                     5
+                                     self.edge_width
                                      )
 
             if not new_edge_start is None:
@@ -139,13 +169,13 @@ class GraphBuilder:
                                      new_edge_start.pos_y,
                                  ),
                                  pygame.mouse.get_pos(),
-                                 5
+                                 self.edge_width
                                  )
 
             for vertex_index in range(len(self.graph.vertexes)):
                 vertex_color = (13, 23, 26)
                 if self.graph.vertexes[vertex_index] == active_vertex:
-                    vertex_color = (0, 255, 0)
+                    vertex_color = (120,120,120) # (0, 255, 0)
                 pygame.draw.circle(self.display, vertex_color,
                                    (
                                        self.graph.vertexes[vertex_index].pos_x,
@@ -159,16 +189,24 @@ class GraphBuilder:
                     self.graph.vertexes[vertex_index].pos_x,
                     self.graph.vertexes[vertex_index].pos_y,
                 ))
+                if self.graph.vertexes[vertex_index].time_in != 1e10:
+                    text_inout = font.render(str(self.graph.vertexes[vertex_index].time_in)+"|"+ str(self.graph.vertexes[vertex_index].time_out), True, (0, 0, 0))
+                    text_coords = text_inout.get_rect(center=(
+                        self.graph.vertexes[vertex_index].pos_x + 40,
+                        self.graph.vertexes[vertex_index].pos_y,
+                    ))
+                    self.display.blit(text_inout, text_coords)
                 self.display.blit(text, text_rect)
 
+
             pygame.display.flip()
-            self.clock.tick(100)
+            self.clock.tick(60)
+
+
 
     def __init__(self):
         self.display = pygame.display.set_mode((800, 600))
         self.graph = Graph()
-        self.graph.add_vertex(100, 200)
-        self.graph.add_vertex(300, 400)
-        self.graph.vertexes[0].add_edge(self.graph.vertexes[1])
         self.clock = pygame.time.Clock()
-        self.vertex_radius = 30
+        self.vertex_radius = 20
+        self.edge_width = 3

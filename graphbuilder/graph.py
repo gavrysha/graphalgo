@@ -4,24 +4,26 @@ class GraphVertex:
     def __init__(self, pos_x, pos_y):
         self.pos_x = pos_x
         self.pos_y = pos_y
-        self.edges_from = []
-        self.edges_to = []
+        self.edges = []
+        self.used = False
+        self.time_in = 1e10
+        self.time_out = 1e10
 
     def edge_exists(self, vertex):
-        if vertex in self.edges_from:
+        if vertex in self.edges:
             return True
         else: return False
 
     def add_edge(self, vertex):
-        self.edges_from.append(vertex)
-        vertex.edges_to.append(self)
+        self.edges.append(vertex)
+        vertex.edges.append(self)
     
     def remove_edge(self, vertex):
         if self.edge_exists(vertex):
-            self.edges_from.remove(vertex)
-            vertex.edges_to.remove(self)
-        else:
-            raise ValueError
+            self.edges.remove(vertex)
+            vertex.edges.remove(self)
+        #else:
+        #    raise ValueError
 
 class Graph:
     def __init__(self):
@@ -34,10 +36,10 @@ class Graph:
     
     def remove_vertex(self, vertex):
         if vertex in self.vertexes:
-            for vertex1 in vertex.edges_from:
-                vertex1.edges_to.remove(vertex)
-            for vertex1 in vertex.edges_to:
-                vertex1.edges_from.remove(vertex)
+            for vertex1 in vertex.edges:
+                vertex1.edges.remove(vertex)
+            for vertex1 in vertex.edges:
+                vertex1.edges.remove(vertex)
             self.vertexes.remove(vertex)
         else:
             raise ValueError
@@ -47,7 +49,7 @@ class Graph:
 
         for vertex in self.vertexes:
             vertexes_for_encode[hash(vertex)] = {
-                'related': [str(hash(edge_from)) for edge_from in vertex.edges_from],
+                'related': [str(hash(edge_from)) for edge_from in vertex.edges],
                 'x': vertex.pos_x,
                 'y': vertex.pos_y
             }
@@ -78,5 +80,4 @@ class Graph:
         except Exception as exp:
             print(exp)
             return None
-
 
