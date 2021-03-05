@@ -8,6 +8,7 @@ class GraphVertex:
         self.used = False
         self.time_in = 1e10
         self.time_out = 1e10
+        self.color = (13, 23, 26)
 
     def edge_exists(self, vertex):
         if vertex in self.edges:
@@ -22,8 +23,8 @@ class GraphVertex:
         if self.edge_exists(vertex):
             self.edges.remove(vertex)
             vertex.edges.remove(self)
-        #else:
-        #    raise ValueError
+        else:
+            raise ValueError
 
 class Graph:
     def __init__(self):
@@ -36,8 +37,6 @@ class Graph:
     
     def remove_vertex(self, vertex):
         if vertex in self.vertexes:
-            for vertex1 in vertex.edges:
-                vertex1.edges.remove(vertex)
             for vertex1 in vertex.edges:
                 vertex1.edges.remove(vertex)
             self.vertexes.remove(vertex)
